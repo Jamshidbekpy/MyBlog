@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container-fluid">
+        <main class="tm-main">
+            <!-- Search form -->
+            <div class="row tm-row">
+                <div class="col-12">
+                    <form method="GET" class="form-inline tm-mb-80 tm-search-form">                
+                        <input class="form-control tm-search-input" name="query" type="text" placeholder="Search..." aria-label="Search">
+                        <button class="tm-search-button" type="submit">
+                            <i class="fas fa-search tm-search-icon" aria-hidden="true"></i>
+                        </button>                                
+                    </form>
+                </div>                
+            </div>            
+            <div class="row tm-row">
+                <div class="col-12">
+                    <hr class="tm-hr-primary tm-mb-55">
+                    <!-- Video player 1422x800 -->
+                    <video width="954" height="535" controls class="tm-mb-40">
+                        <source src="{{ post.video.url }}" type="video/mp4">							  
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            <div class="row tm-row">
+                <div class="col-lg-8 tm-post-col">
+                    <div class="tm-post-full">                    
+                        <div class="mb-4">
+                            <h2 class="pt-2 tm-color-primary tm-post-title">{{ post.title }}</h2>
+                            <p class="tm-mb-40">{{ post.created_at|date:"F d, Y" }} posted by Admin Nat</p>
+                            <p>
+                                {{ post.text }}
+                            </p>
+                            <span class="d-block text-right tm-color-primary">{{ post.category}}</span>
+                        </div>
+                        
+                        <!-- Comments -->
+                        <div>
+                            <h2 class="tm-color-primary tm-post-title">Comments</h2>
+                            <hr class="tm-hr-primary tm-mb-45">
+                            {% for comment in comments|slice:":3" %}
+                                {% if comment.user and request.user == comment.user %}
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <a href="{% url 'blog:update_comment' post.id comment.id %}" class="tm-color-primary">Update</a>
+                                            <a href="{% url 'blog:delete_comment' post.id comment.id %}" class="tm-color-primary">Delete</a>
+                                    </div>
+                                {% endif %}
+                                <div class="tm-comment tm-mb-45">
+                                    <figure class="tm-comment-figure">
+                                        {% if comment.user.image %}
+                                            <img src="{{ comment.user.image.url }}" alt="Image" class="mb-3 img-fluid"
+                                            style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid #ccc;">
+                                        {% endif %}
+                                        <figcaption class="tm-color-primary text-center">{{ comment.user.first_name }}</figcaption>
+                                    </figure>
+                                    <div>
+                                        <p>
+                                            {{ comment.comment}}
+                                        </p>
+                                        <div class="d-flex justify-content-between align-items-center mt-3">
+                                            <span class="tm-color-primary">{{ comment.created_at|date:"F d, Y" }}</span>
+                                        </div>                                                 
+                                    </div>                                
+                                </div>
+                            {% endfor %}
+                            <form method="post" class="mb-5 tm-comment-form">
+                                {% csrf_token %}
+                                <h2 class="tm-color-primary tm-post-title mb-4">Your comment</h2>
+                                {{ form.as_p }}
+                                <div class="text-right">
+                                    <button type="submit" class="tm-btn tm-btn-primary tm-btn-small">Submit</button>
+                                </div>
+                            </form>                         
+                        </div>
+                    </div>
+                </div>
+                <aside class="col-lg-4 tm-aside-col">
+                    <div class="tm-post-sidebar">
+                        <hr class="mb-3 tm-hr-primary">
+                        <h2 class="mb-4 tm-post-title tm-color-primary">Categories</h2>
+                        <ul class="tm-mb-75 pl-5 tm-category-list">
+                            {% for category in categories %}
+                                <li><a href="#" class="tm-color-primary">{{ category.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                        <hr class="mb-3 tm-hr-primary">
+                        <h2 class="tm-mb-40 tm-post-title tm-color-primary">Related Posts</h2>
+                        {% for post in posts %}
+                            <a href="{% url 'blog:post' post.id %}" class="d-block tm-mb-40">
+                                <figure>
+                                    {% if post.image %}
+                                        <img src="{{ post.image.url }}" alt="Image" class="mb-3 img-fluid">
+                                    {% endif %}
+                                    <figcaption class="tm-color-primary">{{ post.title }}</figcaption>
+                                </figure>
+                            </a>
+                        {% endfor %}
+                    </div>                    
+                </aside>
+            </div>
+{% endblock content %}
